@@ -299,10 +299,8 @@ async def handler(ctx: Any) -> AsyncGenerator[str, None]:
     # 获取 store 用于持久化对话
     store_adapter = getattr(ctx, "store", None)
 
-    # 暂时关闭 Claude session 机制，方便调试其他功能
-    session_store = None
-    # if store_adapter is not None and hasattr(store_adapter, "claude_session_store"):
-    #     session_store = store_adapter.claude_session_store()
+    if store_adapter is not None and hasattr(store_adapter, "claude_session_store"):
+        session_store = store_adapter.claude_session_store()
 
     # 保存 user message 到 store
     if store_adapter and cid:

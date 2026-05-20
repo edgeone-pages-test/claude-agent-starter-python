@@ -36,6 +36,16 @@
   font-size: .75rem;
   color: var(--text-muted);
   letter-spacing: .04em;
+  max-width: 400px;
+  text-align: center;
+  line-height: 1.6;
+}
+.emptyFeatures {
+  font-size: .68rem;
+  color: var(--accent-gold);
+  letter-spacing: .06em;
+  margin-top: 4px;
+  opacity: .7;
 }
 
 /* Typing indicator */

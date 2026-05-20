@@ -147,6 +147,34 @@
 .line:nth-child(26) { animation-delay: 415ms; }
 .line:nth-child(27) { animation-delay: 430ms; }
 .line:nth-child(28) { animation-delay: 445ms; }
+.line:nth-child(29) { animation-delay: 460ms; }
+.line:nth-child(30) { animation-delay: 475ms; }
+.line:nth-child(31) { animation-delay: 490ms; }
+.line:nth-child(32) { animation-delay: 505ms; }
+.line:nth-child(33) { animation-delay: 520ms; }
+.line:nth-child(34) { animation-delay: 535ms; }
+.line:nth-child(35) { animation-delay: 550ms; }
+.line:nth-child(36) { animation-delay: 565ms; }
+.line:nth-child(37) { animation-delay: 580ms; }
+.line:nth-child(38) { animation-delay: 595ms; }
+.line:nth-child(39) { animation-delay: 610ms; }
+.line:nth-child(40) { animation-delay: 625ms; }
+.line:nth-child(41) { animation-delay: 640ms; }
+.line:nth-child(42) { animation-delay: 655ms; }
+.line:nth-child(43) { animation-delay: 670ms; }
+.line:nth-child(44) { animation-delay: 685ms; }
+.line:nth-child(45) { animation-delay: 700ms; }
+.line:nth-child(46) { animation-delay: 715ms; }
+.line:nth-child(47) { animation-delay: 730ms; }
+.line:nth-child(48) { animation-delay: 745ms; }
+.line:nth-child(49) { animation-delay: 760ms; }
+.line:nth-child(50) { animation-delay: 775ms; }
+.line:nth-child(51) { animation-delay: 790ms; }
+.line:nth-child(52) { animation-delay: 805ms; }
+.line:nth-child(53) { animation-delay: 820ms; }
+.line:nth-child(54) { animation-delay: 835ms; }
+.line:nth-child(55) { animation-delay: 850ms; }
+.line:nth-child(56) { animation-delay: 865ms; }
 
 @keyframes lineIn {
   from { opacity: 0; transform: translateX(-4px); }
@@ -189,6 +217,23 @@
 .doc { color: #607850; font-style: italic; } /* docstrings */
 .op  { color: #8a7a5a; }               /* operators / punctuation */
 .va  { color: #d4a85a; }               /* variables / params */
+
+/* ── Section divider (between tools & store) ──────────────── */
+.sectionGap {
+  height: 20px;
+}
+
+.sectionLabel {
+  padding: 4px 18px 8px 50px;
+  font-family: 'DM Mono', monospace;
+  font-size: .62rem;
+  letter-spacing: .08em;
+  color: #6b5a30;
+  border-top: 1px dashed #2a2416;
+  margin-bottom: 4px;
+  animation: lineIn 380ms ease both;
+  animation-delay: 620ms;
+}
 
 /* ── Blinking cursor ───────────────────────────────────────── */
 .cursor {

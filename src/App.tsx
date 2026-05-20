@@ -147,7 +147,7 @@ export default function App() {
               <span className={styles.logo}>⬡</span>
               <div>
                 <p className={styles.title}>Agent Chat</p>
-                <p className={styles.subtitle}>Powered by Claude Agent SDK + EdgeOne Sandbox</p>
+                <p className={styles.subtitle}>运行在 EdgeOne 环境中，支持沙箱工具、会话记忆与可观测</p>
               </div>
             </div>
             <ToolIndicators lamps={lamps} />

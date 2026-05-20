@@ -14,7 +14,7 @@ export default function ToolIndicators({ lamps }: Props) {
           <ToolLamp key={lamp.id} lamp={lamp} />
         ))}
       </div>
-      <p className={styles.hint}>EdgeOne 平台沙箱工具</p>
+      <p className={styles.hint}>EdgeOne 平台沙箱工具 · 调用时实时点亮</p>
     </div>
   );
 }

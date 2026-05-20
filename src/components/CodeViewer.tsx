@@ -162,13 +162,75 @@ export default function CodeViewer() {
           <L n={37}><Op t="})" /></L>
           <L n={38} />
           <L n={39}><Doc t='// Handler 内部桥接 context.tools 执行 EdgeOne 平台沙箱操作' /></L>
+
+          {/* -- Section Divider -- */}
+          <div className={styles.sectionGap} />
+          <div className={styles.sectionLabel}>// Session &amp; Store Memory</div>
+
+          <L n={40}><Cmt t="# ========== EdgeOne Store 会话记忆 ==========" /></L>
+          <L n={41}>
+            <Va t="store" /><Op t=" = " />
+            <Fn t="getattr" /><Op t="(" /><Va t="ctx" /><Op t=", " />
+            <Str t='"store"' /><Op t=", " /><Kw t="None" /><Op t=")" />
+          </L>
+          <L n={42}>
+            <Va t="session_store" /><Op t=" = " /><Kw t="None" />
+          </L>
+          <L n={43} />
+          <L n={44}>
+            <Kw t="if " /><Va t="store" /><Kw t=" and " />
+            <Fn t="hasattr" /><Op t="(" /><Va t="store" /><Op t=", " />
+            <Str t='"claude_session_store"' /><Op t="):" />
+          </L>
+          <L n={45}>
+            <I /><Va t="session_store" /><Op t=" = " />
+            <Va t="store" /><Op t="." /><Fn t="claude_session_store" /><Op t="()" />
+          </L>
+          <L n={46} />
+          <L n={47}>
+            <Va t="options" /><Op t=" = " />
+            <Fn t="ClaudeAgentOptions" /><Op t="(" />
+          </L>
+          <L n={48}>
+            <I /><Va t="model" /><Op t="=" />
+            <Fn t="resolve_model_name" /><Op t="()," />
+          </L>
+          <L n={49}>
+            <I /><Va t="system_prompt" /><Op t="=" />
+            <Va t="SYSTEM_PROMPT" /><Op t="," />
+          </L>
+          <L n={50}>
+            <I /><Va t="session_store" /><Op t="=" />
+            <Va t="session_store" /><Op t="," />
+          </L>
+          <L n={51}>
+            <I /><Va t="env" /><Op t="=" />
+            <Fn t="collect_gateway_env" /><Op t="()," />
+          </L>
+          <L n={52}><Op t=")" /></L>
+          <L n={53} />
+          <L n={54}><Cmt t="# 保存前端可恢复的聊天记录" /></L>
+          <L n={55}>
+            <Kw t="await " /><Va t="store" /><Op t="." />
+            <Fn t="append_message" /><Op t="(" />
+            <Va t="cid" /><Op t=", " />
+            <Str t='"user"' /><Op t=", " />
+            <Va t="user_message" /><Op t=")" />
+          </L>
+          <L n={56}>
+            <Kw t="await " /><Va t="store" /><Op t="." />
+            <Fn t="append_message" /><Op t="(" />
+            <Va t="cid" /><Op t=", " />
+            <Str t='"assistant"' /><Op t=", " />
+            <Va t="full_text" /><Op t=")" />
+          </L>
         </div>
       </div>
 
       {/* -- Footer tag -- */}
       <div className={styles.footer}>
         <span className={styles.footerDot} />
-        <span>Claude Agent SDK + EdgeOne Sandbox Tools</span>
+        <span>沙箱工具 · Store 会话记忆 · 自动可观测</span>
       </div>
     </div>
   );
