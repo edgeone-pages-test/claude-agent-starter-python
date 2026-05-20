@@ -1,0 +1,19 @@
+{
+  "routes": [
+    {
+      "path": "/chat",
+      "src": "^/chat$",
+      "isIndex": true
+    },
+    {
+      "path": "/stop",
+      "src": "^/stop$",
+      "isIndex": true
+    },
+    {
+      "path": "/history",
+      "src": "^/history$",
+      "isIndex": true
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+.venv/
+
+# Build outputs
+dist/
+
+# EdgeOne
+.edgeone/
+.edgeone.zip
+
+# Environment variables (never commit real keys)
+.env
+agents-python/.env
+agents-python/chat/.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
