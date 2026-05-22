@@ -27,7 +27,7 @@ export default function ChatWindow({ messages, loading }: Props) {
       {messages.length === 0 && (
         <div className={styles.empty}>
           <span className={styles.emptyIcon}>⬡</span>
-          <p className={styles.emptyTitle}>Claude Agent 助手已就绪</p>
+          <p className={styles.emptyTitle}>Claude Agent Starter</p>
           <p className={styles.emptyHint}>
             我是运行在 EdgeOne 环境中的 Claude 助手，可以调用沙箱工具、保存会话记忆，并帮助你完成各项任务。
           </p>

@@ -13,8 +13,8 @@ const Va   = ({ t }: { t: string }) => <span className={styles.va}>{t}</span>;
 interface LineProps { n: number; children?: React.ReactNode }
 const L = ({ n, children }: LineProps) => (
   <div className={styles.line}>
-    <span className={styles.ln}>{String(n).padStart(2, ' ')}</span>
-    <span className={styles.lc}>{children ?? ' '}</span>
+    <span className={styles.ln}>{String(n).padStart(2, ' ')}</span>
+    <span className={styles.lc}>{children ?? ' '}</span>
   </div>
 );
 
@@ -31,7 +31,7 @@ export default function CodeViewer() {
       <div className={styles.header}>
         <div className={styles.headerLeft}>
           <span className={styles.fileIcon}>&#x2B21;</span>
-          <span className={styles.filename}>tools<span className={styles.sep}>.</span>ts</span>
+          <span className={styles.filename}>handler<span className={styles.sep}>.</span>py</span>
         </div>
         <span className={styles.badge}>READ ONLY</span>
       </div>
@@ -41,188 +41,209 @@ export default function CodeViewer() {
         <div className={styles.scanline} aria-hidden />
 
         <div className={styles.code}>
-          <L n={1}><Cmt t="// ========== EdgeOne 平台沙箱工具接入 ==========" /></L>
-          <L n={2}>
-            <Kw t="import " /><Op t="{ " />
-            <Va t="tool" /><Op t=", " />
-            <Va t="createSdkMcpServer" />
-            <Op t=" } " /><Kw t="from " /><Str t="'claude-agent-sdk'" />
+          {/* ═══ Imports ═══ */}
+          <L n={1}>
+            <Kw t="from " /><Va t="claude_agent_sdk" /><Kw t=" import " />
+            <Fn t="ClaudeAgentOptions" /><Op t=", " /><Fn t="SdkMcpTool" />
           </L>
-          <L n={3} />
+          <L n={2}>
+            <Kw t="from " /><Va t="claude_agent_sdk" /><Kw t=" import " />
+            <Fn t="create_sdk_mcp_server" /><Op t=", " /><Fn t="query" />
+          </L>
+          <L n={3}>
+            <Kw t="from " /><Va t=".._model" /><Kw t=" import " />
+            <Fn t="collect_gateway_env" /><Op t=", " /><Fn t="resolve_model_name" />
+          </L>
+          <L n={4} />
 
-          <L n={4}><Cmt t="// 从 EdgeOne context 获取平台工具" /></L>
+          {/* ═══ Handler ═══ */}
           <L n={5}>
-            <Kw t="const " /><Va t="rawTools" /><Op t=" = " />
-            <Va t="context" /><Op t="." /><Va t="tools" /><Op t="." />
-            <Fn t="all" /><Op t="()" />
+            <Va t="SYSTEM_PROMPT" /><Op t=" = " /><Str t='"..."' />
           </L>
           <L n={6} />
-
-          <L n={7}><Cmt t="// 定义 4 个 MCP 工具，桥接平台实现" /></L>
+          <L n={7}>
+            <Kw t="async def " /><Fn t="handler" /><Op t="(" />
+            <Va t="context" /><Op t="):" />
+          </L>
           <L n={8}>
-            <Kw t="const " /><Va t="commandsTool" /><Op t=" = " />
-            <Fn t="tool" /><Op t="(" />
+            <I /><Va t="message" /><Op t=" = " />
+            <Va t="context" /><Op t="." /><Va t="request" /><Op t="." /><Va t="body" />
+            <Op t="." /><Fn t="get" /><Op t="(" /><Str t='"message"' /><Op t=", " />
+            <Str t='""' /><Op t=")" />
           </L>
           <L n={9}>
-            <I /><Str t="'commands'" /><Op t="," />
-            <Op t="  " /><Cmt t="// 终端命令" />
+            <I /><Va t="conversation_id" /><Op t=" = " />
+            <Va t="context" /><Op t="." /><Va t="conversation_id" />
           </L>
           <L n={10}>
-            <I /><Str t="'Execute shell commands'" /><Op t="," />
+            <I /><Va t="store" /><Op t=" = " />
+            <Va t="context" /><Op t="." /><Va t="store" />
           </L>
-          <L n={11}>
-            <I /><Op t="{ " /><Va t="cmd" /><Op t=": " />
-            <Fn t="z.string" /><Op t="() }," />
-          </L>
+          <L n={11} />
+
+          {/* ═══ Step 1: Store save user msg ═══ */}
           <L n={12}>
-            <I /><Op t="(" /><Va t="args" /><Op t=") => " />
-            <Fn t="callPlatformTool" /><Op t="(" />
-            <Str t="'commands'" /><Op t=", " /><Va t="args" /><Op t=")" />
+            <I /><Cmt t="# 1. EdgeOne Store：保存用户消息，供历史恢复" />
           </L>
-          <L n={13}><Op t=")" /></L>
+          <L n={13}>
+            <I /><Kw t="await " /><Va t="store" /><Op t="." />
+            <Fn t="append_message" /><Op t="(" />
+            <Va t="conversation_id" /><Op t=", " />
+            <Str t='"user"' /><Op t=", " /><Va t="message" /><Op t=")" />
+          </L>
           <L n={14} />
 
+          {/* ═══ Step 2: Session store ═══ */}
           <L n={15}>
-            <Kw t="const " /><Va t="filesTool" /><Op t=" = " />
-            <Fn t="tool" /><Op t="(" />
+            <I /><Cmt t="# 2. 注入 Claude Agent SDK 会话记忆" />
           </L>
           <L n={16}>
-            <I /><Str t="'files'" /><Op t="," />
-            <Op t="     " /><Cmt t="// 文件操作" />
-          </L>
-          <L n={17}>
-            <I /><Str t="'File read/write/list operations'" /><Op t="," />
-          </L>
-          <L n={18}>
-            <I /><Op t="{ " /><Va t="op" /><Op t=": " />
-            <Fn t="z.enum" /><Op t="([" /><Str t="'read'" /><Op t=", " />
-            <Str t="'write'" /><Op t=", " /><Str t="'list'" /><Op t=", ...])," />
-          </L>
-          <L n={19}>
-            <I /><Op t="  " /><Va t="path" /><Op t=": " />
-            <Fn t="z.string" /><Op t="()," />
-            <Op t=" " /><Va t="content" /><Op t=": " />
-            <Fn t="z.string" /><Op t="()." /><Fn t="optional" /><Op t="() }" />
-          </L>
-          <L n={20}><Op t=")" /></L>
-          <L n={21} />
-
-          <L n={22}>
-            <Kw t="const " /><Va t="codeTool" /><Op t=" = " />
-            <Fn t="tool" /><Op t="(" />
-          </L>
-          <L n={23}>
-            <I /><Str t="'code_interpreter'" /><Op t="," />
-            <Cmt t=" // 代码解释器" />
-          </L>
-          <L n={24}>
-            <I /><Op t="{ " /><Va t="language" /><Op t=": " />
-            <Fn t="z.string" /><Op t="()," />
-            <Op t=" " /><Va t="code" /><Op t=": " />
-            <Fn t="z.string" /><Op t="() }" />
-          </L>
-          <L n={25}><Op t=")" /></L>
-          <L n={26} />
-
-          <L n={27}>
-            <Kw t="const " /><Va t="browserTool" /><Op t=" = " />
-            <Fn t="tool" /><Op t="(" />
-          </L>
-          <L n={28}>
-            <I /><Str t="'browser'" /><Op t="," />
-            <Op t="    " /><Cmt t="// 浏览器操作" />
-          </L>
-          <L n={29}>
-            <I /><Op t="{ " /><Va t="op" /><Op t=": " />
-            <Fn t="z.enum" /><Op t="([" /><Str t="'fetch'" /><Op t=", " />
-            <Str t="'screenshot'" /><Op t=", ...])," />
-          </L>
-          <L n={30}>
-            <I /><Op t="  " /><Va t="url" /><Op t=": " />
-            <Fn t="z.string" /><Op t="()." /><Fn t="optional" /><Op t="() }" />
-          </L>
-          <L n={31}><Op t=")" /></L>
-          <L n={32} />
-
-          <L n={33}><Cmt t="// 注册为 MCP Server" /></L>
-          <L n={34}>
-            <Kw t="const " /><Va t="mcpServer" /><Op t=" = " />
-            <Fn t="createSdkMcpServer" /><Op t="({" />
-          </L>
-          <L n={35}>
-            <I /><Va t="name" /><Op t=": " /><Str t="'edgeone-sandbox'" /><Op t="," />
-          </L>
-          <L n={36}>
-            <I /><Va t="tools" /><Op t=": [" />
-            <Va t="commandsTool" /><Op t=", " />
-            <Va t="filesTool" /><Op t=", " />
-            <Va t="codeTool" /><Op t=", " />
-            <Va t="browserTool" /><Op t="]" />
-          </L>
-          <L n={37}><Op t="})" /></L>
-          <L n={38} />
-          <L n={39}><Doc t='// Handler 内部桥接 context.tools 执行 EdgeOne 平台沙箱操作' /></L>
-
-          {/* -- Section Divider -- */}
-          <div className={styles.sectionGap} />
-          <div className={styles.sectionLabel}>// Session &amp; Store Memory</div>
-
-          <L n={40}><Cmt t="# ========== EdgeOne Store 会话记忆 ==========" /></L>
-          <L n={41}>
-            <Va t="store" /><Op t=" = " />
-            <Fn t="getattr" /><Op t="(" /><Va t="ctx" /><Op t=", " />
-            <Str t='"store"' /><Op t=", " /><Kw t="None" /><Op t=")" />
-          </L>
-          <L n={42}>
-            <Va t="session_store" /><Op t=" = " /><Kw t="None" />
-          </L>
-          <L n={43} />
-          <L n={44}>
-            <Kw t="if " /><Va t="store" /><Kw t=" and " />
-            <Fn t="hasattr" /><Op t="(" /><Va t="store" /><Op t=", " />
-            <Str t='"claude_session_store"' /><Op t="):" />
-          </L>
-          <L n={45}>
             <I /><Va t="session_store" /><Op t=" = " />
             <Va t="store" /><Op t="." /><Fn t="claude_session_store" /><Op t="()" />
           </L>
-          <L n={46} />
-          <L n={47}>
-            <Va t="options" /><Op t=" = " />
+          <L n={17} />
+
+          {/* ═══ Step 3: Platform tools ═══ */}
+          <L n={18}>
+            <I /><Cmt t="# 3. EdgeOne Tools：读取平台沙箱工具" />
+          </L>
+          <L n={19}>
+            <I /><Va t="platform_tools" /><Op t=" = " />
+            <Va t="context" /><Op t="." /><Va t="tools" /><Op t="." />
+            <Fn t="all" /><Op t="()" />
+          </L>
+          <L n={20} />
+
+          {/* ═══ Step 4: SdkMcpTool ═══ */}
+          <L n={21}>
+            <I /><Cmt t="# 4. 把 EdgeOne tools 包装成 MCP tools" />
+          </L>
+          <L n={22}>
+            <I /><Va t="commands" /><Op t=" = " />
+            <Fn t="SdkMcpTool" /><Op t="(" />
+          </L>
+          <L n={23}>
+            <I level={2} /><Va t="name" /><Op t="=" /><Str t='"commands"' /><Op t="," />
+          </L>
+          <L n={24}>
+            <I level={2} /><Va t="description" /><Op t="=" />
+            <Str t='"Execute shell commands in EdgeOne sandbox"' /><Op t="," />
+          </L>
+          <L n={25}>
+            <I level={2} /><Va t="input_schema" /><Op t="={" />
+            <Str t='"type"' /><Op t=": " /><Str t='"object"' /><Op t=", " />
+            <Str t='"properties"' /><Op t=": {" /><Str t='"cmd"' /><Op t=": ...}}," />
+          </L>
+          <L n={26}>
+            <I level={2} /><Va t="handler" /><Op t="=" />
+            <Kw t="lambda " /><Va t="args" /><Op t=": " />
+            <Fn t="call_edgeone_tool" /><Op t="(" />
+            <Va t="platform_tools" /><Op t=", " />
+            <Str t='"commands"' /><Op t=", " /><Va t="args" /><Op t=")," />
+          </L>
+          <L n={27}>
+            <I /><Op t=")" />
+          </L>
+          <L n={28}>
+            <I /><Cmt t="# files / code_interpreter / browser 同理" />
+          </L>
+
+          {/* -- Section Divider -- */}
+          <div className={styles.sectionGap} />
+          <div className={styles.sectionLabel}>// MCP Server &amp; Agent Launch</div>
+
+          {/* ═══ Step 5: MCP Server ═══ */}
+          <L n={29}>
+            <I /><Cmt t="# 5. 注册 EdgeOne MCP Server" />
+          </L>
+          <L n={30}>
+            <I /><Va t="edgeone" /><Op t=" = " />
+            <Fn t="create_sdk_mcp_server" /><Op t="(" />
+          </L>
+          <L n={31}>
+            <I level={2} /><Va t="name" /><Op t="=" /><Str t='"edgeone"' /><Op t="," />
+          </L>
+          <L n={32}>
+            <I level={2} /><Va t="tools" /><Op t="=[" />
+            <Va t="commands" /><Op t=", " /><Va t="files" /><Op t=", " />
+            <Va t="code" /><Op t=", " /><Va t="browser" /><Op t="]," />
+          </L>
+          <L n={33}>
+            <I /><Op t=")" />
+          </L>
+          <L n={34} />
+
+          {/* ═══ Step 6: Agent Options ═══ */}
+          <L n={35}>
+            <I /><Cmt t="# 6. 创建 Claude Agent 运行参数" />
+          </L>
+          <L n={36}>
+            <I /><Va t="options" /><Op t=" = " />
             <Fn t="ClaudeAgentOptions" /><Op t="(" />
           </L>
-          <L n={48}>
-            <I /><Va t="model" /><Op t="=" />
+          <L n={37}>
+            <I level={2} /><Va t="model" /><Op t="=" />
             <Fn t="resolve_model_name" /><Op t="()," />
           </L>
-          <L n={49}>
-            <I /><Va t="system_prompt" /><Op t="=" />
+          <L n={38}>
+            <I level={2} /><Va t="system_prompt" /><Op t="=" />
             <Va t="SYSTEM_PROMPT" /><Op t="," />
           </L>
-          <L n={50}>
-            <I /><Va t="session_store" /><Op t="=" />
+          <L n={39}>
+            <I level={2} /><Va t="session_store" /><Op t="=" />
             <Va t="session_store" /><Op t="," />
           </L>
-          <L n={51}>
-            <I /><Va t="env" /><Op t="=" />
+          <L n={40}>
+            <I level={2} /><Va t="mcp_servers" /><Op t="={" />
+            <Str t='"edgeone"' /><Op t=": " /><Va t="edgeone" /><Op t="}," />
+          </L>
+          <L n={41}>
+            <I level={2} /><Va t="allowed_tools" /><Op t="=[" />
+            <Str t='"mcp__edgeone__commands"' /><Op t=", ...]," />
+          </L>
+          <L n={42}>
+            <I level={2} /><Va t="permission_mode" /><Op t="=" />
+            <Str t='"bypassPermissions"' /><Op t="," />
+          </L>
+          <L n={43}>
+            <I level={2} /><Va t="env" /><Op t="=" />
             <Fn t="collect_gateway_env" /><Op t="()," />
           </L>
-          <L n={52}><Op t=")" /></L>
-          <L n={53} />
-          <L n={54}><Cmt t="# 保存前端可恢复的聊天记录" /></L>
-          <L n={55}>
-            <Kw t="await " /><Va t="store" /><Op t="." />
-            <Fn t="append_message" /><Op t="(" />
-            <Va t="cid" /><Op t=", " />
-            <Str t='"user"' /><Op t=", " />
-            <Va t="user_message" /><Op t=")" />
+          <L n={44}>
+            <I /><Op t=")" />
           </L>
-          <L n={56}>
-            <Kw t="await " /><Va t="store" /><Op t="." />
+          <L n={45} />
+
+          {/* ═══ Step 7: Launch Agent ═══ */}
+          <L n={46}>
+            <I /><Cmt t="# 7. 启动 Claude Agent" />
+          </L>
+          <L n={47}>
+            <I /><Va t="result" /><Op t=" = " />
+            <Fn t="query" /><Op t="(" /><Va t="prompt" /><Op t="=" />
+            <Va t="message" /><Op t=", " /><Va t="options" /><Op t="=" />
+            <Va t="options" /><Op t=")" />
+          </L>
+          <L n={48}>
+            <I /><Va t="assistant_text" /><Op t=" = " />
+            <Kw t="await " /><Fn t="collect_assistant_text" /><Op t="(" />
+            <Va t="result" /><Op t=")" />
+          </L>
+          <L n={49} />
+
+          {/* ═══ Step 8: Save reply ═══ */}
+          <L n={50}>
+            <I /><Cmt t="# 8. 保存助手回复，供 /history 恢复" />
+          </L>
+          <L n={51}>
+            <I /><Kw t="await " /><Va t="store" /><Op t="." />
             <Fn t="append_message" /><Op t="(" />
-            <Va t="cid" /><Op t=", " />
-            <Str t='"assistant"' /><Op t=", " />
-            <Va t="full_text" /><Op t=")" />
+            <Va t="conversation_id" /><Op t=", " />
+            <Str t='"assistant"' /><Op t=", " /><Va t="assistant_text" /><Op t=")" />
+          </L>
+          <L n={52}>
+            <I /><Kw t="return " /><Op t="{" />
+            <Str t='"answer"' /><Op t=": " /><Va t="assistant_text" /><Op t="}" />
           </L>
         </div>
       </div>
@@ -230,7 +251,7 @@ export default function CodeViewer() {
       {/* -- Footer tag -- */}
       <div className={styles.footer}>
         <span className={styles.footerDot} />
-        <span>沙箱工具 · Store 会话记忆 · 自动可观测</span>
+        <span>Claude Agent SDK · EdgeOne Store · MCP Server · 沙箱工具</span>
       </div>
     </div>
   );
