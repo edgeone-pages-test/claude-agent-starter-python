@@ -1,0 +1,29 @@
+{
+  "routes": [
+    {
+      "path": "/chat",
+      "src": "^/chat$",
+      "isIndex": true
+    },
+    {
+      "path": "/stop",
+      "src": "^/stop$",
+      "isIndex": true
+    },
+    {
+      "path": "/clear-history",
+      "src": "^/clear-history$",
+      "isIndex": false
+    },
+    {
+      "path": "/conversations",
+      "src": "^/conversations$",
+      "isIndex": false
+    },
+    {
+      "path": "/delete-conversation",
+      "src": "^/delete-conversation$",
+      "isIndex": false
+    }
+  ]
+}

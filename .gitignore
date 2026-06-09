@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+.venv/
+
+# Build outputs
+dist/
+
+# EdgeOne
+.edgeone/
+.edgeone.zip
+.codegraph
+
+# Environment variables (never commit real keys)
+.env
+agents-python/.env
+agents-python/chat/.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+uv.toml
+# Local toolchain pin — EdgeOne Makers runs Python 3.12; let each
+# contributor manage their own pyenv/asdf without forcing a version.
+.python-version
+# Local toolchain pin — EdgeOne Makers runs Python 3.12; let each
+# contributor manage their own pyenv/asdf without forcing a version.
+.python-version
+
+# Internal planning docs
+plan/
+
+# AI assistant local instructions
+CLAUDE.md
+AGENTS.md
+
+# Tencent Cloud EdgeOne
+.env
+.edgeone/*
+.tef_dist/*
+  
