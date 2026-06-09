@@ -191,6 +191,25 @@ class handler(BaseHTTPRequestHandler):
             conversations = [
                 c for item in _extract_items(result) if (c := _normalize_conversation(item))
             ]
+
+            # Dedupe by id — the user_conversation_index can carry multiple
+            # entries for the same conversation_id (one per appended user
+            # message, since agents/chat writes a user-indexed copy on every
+            # turn). The runtime's list_conversations does not collapse them,
+            # so the sidebar would otherwise render N rows for the same
+            # thread. Keep the FIRST occurrence so the runtime's intended
+            # ordering (driven by `order=` and pagination cursors) is
+            # preserved.
+            seen_ids: set[str] = set()
+            deduped: list[dict] = []
+            for conv in conversations:
+                if conv["id"] in seen_ids:
+                    continue
+                seen_ids.add(conv["id"])
+                deduped.append(conv)
+            duplicates_dropped = len(conversations) - len(deduped)
+            conversations = deduped
+
             _fill_missing_titles(store, conversations)
 
             response = {
@@ -200,7 +219,10 @@ class handler(BaseHTTPRequestHandler):
                     result, "previous_cursor", "previousCursor", "prev_cursor", "prevCursor"
                 ),
             }
-            logger.log(f"list_conversations: returned {len(conversations)} items")
+            logger.log(
+                f"list_conversations: returned {len(conversations)} unique items "
+                f"({duplicates_dropped} duplicate(s) dropped)"
+            )
             self._write_json(200, response)
 
         except Exception as e:
