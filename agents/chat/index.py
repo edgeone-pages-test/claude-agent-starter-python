@@ -153,6 +153,7 @@ def build_agent_options(
 async def handler(ctx: Any) -> AsyncGenerator[str, None]:
     """EdgeOne Makers entry point (async generator streaming)."""
     cid = ctx.conversation_id or ""
+    logger.log(f"[chat] entered with cid={cid!r}")
 
     body = ctx.request.body
     user_message: str = body.get("message", "") if isinstance(body, dict) else ""
@@ -258,6 +259,7 @@ async def handler(ctx: Any) -> AsyncGenerator[str, None]:
         response_iter = query(prompt=user_message, options=options).__aiter__()
         async for item_type, msg in iter_query_messages(response_iter, cancel_signal, HEARTBEAT_INTERVAL_S):
             if item_type == "cancelled":
+                logger.log(f"[cancel] cancel_signal observed, stopping stream cid={cid!r}")
                 stopped = True
                 break
             if item_type == "finished":

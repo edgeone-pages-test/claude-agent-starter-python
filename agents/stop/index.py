@@ -15,7 +15,10 @@ async def handler(context):
     body = context.request.body or {}
     conversation_id = body.get('conversation_id')
 
+    logger.log(f"conversation_id: {conversation_id!r}")
+
     if not conversation_id:
+        logger.error("Missing conversation_id")
         return {
             'status_code': 400,
             'body': {
@@ -25,6 +28,11 @@ async def handler(context):
         }
 
     result = context.utils.abort_active_run(conversation_id)
+    logger.log(
+        f"abort_active_run result: aborted={getattr(result, 'aborted', None)!r}, "
+        f"conversation_id={getattr(result, 'conversation_id', None)!r}, "
+        f"run_id={getattr(result, 'run_id', None)!r}"
+    )
 
     return {
         "status": "aborting" if result.aborted else "idle",

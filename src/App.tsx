@@ -509,10 +509,18 @@ function AppInner() {
         }
 
         // Detect WSA_API_KEY-missing tool errors. The Claude SDK surfaces
-        // tool errors as a `debug_msg` whose `preview` JSON carries a
-        // tool_use_result with is_error:true and a "WSA_API_KEY" mention.
-        // Flip the in-bubble web_search chip to error state so the user
-        // sees an actionable hint with a link to the WSA product page.
+        // tool errors as a `debug_msg` whose `preview` is a serialized
+        // tool-result blob — but the shape differs by SDK language:
+        //   TypeScript SDK → JSON-style:  "type":"tool_result", "is_error":true
+        //   Python SDK     → repr-style:  ToolResultBlock(..., is_error=None)
+        // (Yes, the Python SDK leaves is_error=None even on actual tool
+        // failures; the failure is signalled only by the error message
+        // text itself.) So we cannot rely on is_error and instead match:
+        //   1. the literal env var name "WSA_API_KEY" (stable across
+        //      locales — it's an env-var, not a translatable string), AND
+        //   2. a tool-result context marker that survives both shapes.
+        // The context guard prevents a user prompt that literally contains
+        // "WSA_API_KEY" from flipping the chip to error.
         // Not persisted: a refresh clears the chip; a successful retry
         // calls setBotActivity({ status: 'active' }) and clears errorCode.
         if (event.eventType === 'debug_msg') {
@@ -520,7 +528,11 @@ function AppInner() {
           if (
             typeof preview === 'string' &&
             preview.includes('WSA_API_KEY') &&
-            preview.includes('"is_error":true')
+            (
+              preview.includes('tool_result') ||
+              preview.includes('tool_use_result') ||
+              preview.includes('ToolResultBlock')
+            )
           ) {
             setBotActivity({
               type: 'web_search',
