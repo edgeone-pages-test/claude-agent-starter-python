@@ -57,41 +57,29 @@ export async function fetchConversationHistory(conversationId: string, userId?: 
   const startTime = performance.now();
   console.log(`[history] start: ${new Date().toISOString()}`);
 
-  for (let attempt = 0; attempt < 3; attempt++) {
-    try {
-      const res = await fetch(API.history, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ conversation_id: conversationId, user_id: userId }),
-      });
+  try {
+    const res = await fetch(API.history, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ conversation_id: conversationId, user_id: userId }),
+    });
 
-      // 409 = an active request already exists for this conversation (often
-      // caused by React StrictMode's double render). Briefly back off and retry.
-      if (res.status === 409) {
-        await new Promise(r => setTimeout(r, 500));
-        continue;
-      }
-
-      if (!res.ok) {
-        console.log(`[history] end: ${new Date().toISOString()}, total: ${(performance.now() - startTime).toFixed(2)}ms`);
-        return [];
-      }
-
-      const data = await res.json().catch(() => null) as { messages?: Message[] } | null;
-      const messages = Array.isArray(data?.messages) ? data.messages : [];
-
-      console.log(`[history] end: ${new Date().toISOString()}, total: ${(performance.now() - startTime).toFixed(2)}ms`);
-      return messages;
-    } catch {
+    if (!res.ok) {
       console.log(`[history] end: ${new Date().toISOString()}, total: ${(performance.now() - startTime).toFixed(2)}ms`);
       return [];
     }
-  }
 
-  console.log(`[history] end: ${new Date().toISOString()}, total: ${(performance.now() - startTime).toFixed(2)}ms`);
-  return [];
+    const data = await res.json().catch(() => null) as { messages?: Message[] } | null;
+    const messages = Array.isArray(data?.messages) ? data.messages : [];
+
+    console.log(`[history] end: ${new Date().toISOString()}, total: ${(performance.now() - startTime).toFixed(2)}ms`);
+    return messages;
+  } catch {
+    console.log(`[history] end: ${new Date().toISOString()}, total: ${(performance.now() - startTime).toFixed(2)}ms`);
+    return [];
+  }
 }
 
 /**
