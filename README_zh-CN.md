@@ -4,7 +4,7 @@
 
 **Framework：** Claude Agent SDK · **Category：** Quick Start <!-- TODO: confirm --> · **Language：** Python
 
-[![Deploy to EdgeOne Makers](https://cdnstatic.tencentcs.com/edgeone/pages/deploy.svg)](https://edgeone.ai/makers/new?template=claude-agent-starter-python&from=within&fromAgent=1&agentLang=python)
+[![Deploy to EdgeOne Makers](https://cdnstatic.tencentcs.com/edgeone/pages/deploy.svg)](https://console.cloud.tencent.com/edgeone/pages/new?template=claude-agent-starter-python)
 
 <!-- ![preview](./assets/preview.png)  TODO: confirm -->
 
