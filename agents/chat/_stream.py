@@ -44,6 +44,24 @@ PROJECT_SKILLS = [
 _BASE64_IMAGE_RE = re.compile(
     r'"base64Image"\s*:\s*"[A-Za-z0-9+/=]{100,}"'
 )
+_MARKDOWN_DATA_IMAGE_RE = re.compile(
+    r"!\[[^\]]*]\(\s*data:image/[^;)\s]+;base64,[A-Za-z0-9+/=]+\s*\)",
+    re.IGNORECASE,
+)
+_MARKDOWN_DATA_IMAGE_TAIL_RE = re.compile(
+    r"!\[[^\]]*]\(\s*data:image/[^;)\s]+;base64[\s\S]*\Z",
+    re.IGNORECASE,
+)
+_BARE_DATA_IMAGE_RE = re.compile(
+    r"data:image/[^;)\s]+;base64,[A-Za-z0-9+/=]+",
+    re.IGNORECASE,
+)
+_BARE_DATA_IMAGE_TAIL_RE = re.compile(
+    r"data:image/[^;)\s]+;base64,[A-Za-z0-9+/=]*\Z",
+    re.IGNORECASE,
+)
+_INCOMPLETE_MARKDOWN_IMAGE_TEXT_RE = re.compile(r"!\[[^\]]*\Z")
+_INCOMPLETE_MARKDOWN_IMAGE_LINK_RE = re.compile(r"!\[[^\]]*]\([^\)]*\Z")
 
 
 @dataclass
@@ -51,6 +69,7 @@ class StreamState:
     """Mutable state used while converting SDK messages into SSE events."""
 
     full_assistant_text: str = ""
+    emitted_assistant_text_len: int = 0
     sent_text_len_by_block: dict[int, int] = field(default_factory=dict)
     logged_tool_events: set[str] = field(default_factory=set)
     bot_msg_id: str = ""
@@ -61,6 +80,18 @@ class StreamState:
 def _redact_base64(text: str) -> str:
     """Replace large base64Image values with placeholder for logging."""
     return _BASE64_IMAGE_RE.sub('"base64Image": "[REDACTED image data]"', text)
+
+
+def sanitize_assistant_text(text: str) -> str:
+    """Remove inline image data URIs from assistant prose before streaming/storage."""
+    cleaned = _MARKDOWN_DATA_IMAGE_RE.sub("", text)
+    cleaned = _MARKDOWN_DATA_IMAGE_TAIL_RE.sub("", cleaned)
+    cleaned = _BARE_DATA_IMAGE_RE.sub("", cleaned)
+    cleaned = _BARE_DATA_IMAGE_TAIL_RE.sub("", cleaned)
+    cleaned = _INCOMPLETE_MARKDOWN_IMAGE_LINK_RE.sub("", cleaned)
+    cleaned = _INCOMPLETE_MARKDOWN_IMAGE_TEXT_RE.sub("", cleaned)
+    cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)
+    return cleaned.lstrip()
 
 
 def _safe_json_preview(value: Any, max_length: int = 4000) -> str:
@@ -260,7 +291,12 @@ def _handle_stream_event(msg: Any, state: StreamState, debug_logger: Any = None)
             text = delta.get("text", "")
             if text:
                 state.full_assistant_text += text
-                events.append(sse_event("text_delta", {"delta": text}))
+                cleaned_text = sanitize_assistant_text(state.full_assistant_text)
+                already_sent = state.emitted_assistant_text_len
+                if len(cleaned_text) > already_sent:
+                    clean_delta = cleaned_text[already_sent:]
+                    state.emitted_assistant_text_len = len(cleaned_text)
+                    events.append(sse_event("text_delta", {"delta": clean_delta}))
 
     return events
 

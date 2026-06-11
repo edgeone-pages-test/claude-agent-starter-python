@@ -44,7 +44,13 @@ except ImportError:
 
 from .._model import collect_gateway_env, resolve_model_name
 from .._logger import create_logger
-from ._stream import StreamState, iter_query_messages, sdk_message_to_sse, sse_event
+from ._stream import (
+    StreamState,
+    iter_query_messages,
+    sanitize_assistant_text,
+    sdk_message_to_sse,
+    sse_event,
+)
 
 
 logger = create_logger("chat")
@@ -75,7 +81,8 @@ SYSTEM_PROMPT = (
   '4. If a tool call fails, do not repeat it blindly and do not switch to unrelated operations.\n' +
   '   Briefly explain the failure, adjust the parameters only if the fix is clear, otherwise ask the user for guidance.\n' +
   '5. Do not perform destructive file or shell operations unless the user explicitly asks for them.\n' +
-  '6. If the task can be answered without tools or skills, answer directly and keep the response concise.\n' +
+  '6. If a tool returns an image or screenshot, do not include base64 strings, data:image URLs, or Markdown image links in your text. Briefly say the image is shown in the chat.\n' +
+  '7. If the task can be answered without tools or skills, answer directly and keep the response concise.\n' +
   'When the user explicitly names a project skill, load that skill before doing the task.'
 )
 
@@ -306,7 +313,7 @@ async def handler(ctx: Any) -> AsyncGenerator[str, None]:
 
     # Save assistant response (with frontend-generated ID if available)
     # Save even if text is empty but images were sent (use placeholder)
-    assistant_content = stream_state.full_assistant_text.strip()
+    assistant_content = sanitize_assistant_text(stream_state.full_assistant_text).strip()
     if not assistant_content and stream_state.has_images:
         assistant_content = "[image]"
 
