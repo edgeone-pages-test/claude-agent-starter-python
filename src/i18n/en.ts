@@ -63,6 +63,10 @@ const en = {
   "aria.send": "Send",
   "aria.clearHistory": "Clear history",
   "aria.stopGeneration": "Stop generation",
+
+  // ─── Floating bottom-right action badges ─────────────────────────────
+  "floatingLink.deploy": "Deploy",
+  "floatingLink.github": "GitHub",
 } as const;
 
 export default en;

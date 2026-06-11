@@ -63,6 +63,10 @@ const zh = {
   "aria.send": "发送",
   "aria.clearHistory": "清除历史",
   "aria.stopGeneration": "停止生成",
+
+  // ─── Floating bottom-right action badges ─────────────────────────────
+  "floatingLink.deploy": "一键部署",
+  "floatingLink.github": "GitHub",
 } as const;
 
 export default zh;
