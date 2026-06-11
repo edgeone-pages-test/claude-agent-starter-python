@@ -65,6 +65,9 @@ SYSTEM_PROMPT = (
   '  Parameters: op is required; use url for fetch; use selector, text, or script when needed.\n\n' +
   'Available project skills:\n' +
   '- sandbox-algorithms: use this when the user asks to compute or verify deterministic algorithmic results such as Fibonacci sequences, factorials, primes, sorting, combinations, or explicitly asks for sandbox-algorithms.\n\n' +
+  'Filesystem boundary:\n' +
+  '- Use Claude Code Read only for project skill resources under .claude/skills, such as SKILL.md references or scripts needed by a loaded skill.\n' +
+  '- Use the EdgeOne files tool for user workspace files, temporary files, generated artifacts, and all non-skill file operations.\n\n' +
   'Tool-use rules:\n' +
   '1. Use a tool only when it is necessary to answer the user concretely.\n' +
   '2. Call tools one at a time and wait for each result before deciding the next step.\n' +
@@ -126,16 +129,31 @@ def build_agent_options(
     session_id: str | None = None,
     resume: str | None = None,
 ) -> "ClaudeAgentOptions":
-    """Build Claude Agent SDK options. EdgeOne tools come from MCP; Skill is the only built-in tool."""
+    """Build Claude Agent SDK options. EdgeOne tools come from MCP."""
+    cwd = os.getcwd()
+    skill_read_allow_rules = [
+        "Read(.claude/skills/**)",
+        f"Read({cwd}/.claude/skills/**)",
+    ]
     opts = ClaudeAgentOptions(
         model=resolve_model_name(),
         system_prompt=SYSTEM_PROMPT,
-        cwd=os.getcwd(),
-        tools=["Skill"],
+        cwd=cwd,
+        # Keep Claude Code's built-in tools narrowly scoped: Skill loads
+        # project skills, and Read may only access .claude/skills resources.
+        # EdgeOne sandbox tools are exposed separately through MCP below.
+        tools=["Skill", "Read"],
         allowed_tools=list(dict.fromkeys(allowed_tools or [])),
         setting_sources=["project"],
         skills="all",
-        permission_mode="bypassPermissions",
+        permission_mode="dontAsk",
+        settings={
+            "permissions": {
+                "allow": skill_read_allow_rules,
+                "defaultMode": "dontAsk",
+                "disableBypassPermissionsMode": "disable",
+            },
+        },
         max_turns=10,
         env=collect_gateway_env(),
         include_partial_messages=True,

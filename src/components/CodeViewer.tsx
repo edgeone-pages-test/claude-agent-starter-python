@@ -155,42 +155,59 @@ export default function CodeViewer() {
             <Va t="edgeone_mcp" /><Op t="." /><Va t="allowed_tools" /><Op t="," />
           </L>
           <L n={31}>
+            <I level={2} /><Va t="tools" /><Op t="=[" />
+            <Str t='"Skill"' /><Op t=", " /><Str t='"Read"' /><Op t="]," />
+          </L>
+          <L n={32}>
+            <I level={2} /><Va t="skills" /><Op t="=" />
+            <Str t='"all"' /><Op t="," />
+          </L>
+          <L n={33}>
+            <I level={2} /><Va t="permission_mode" /><Op t="=" />
+            <Str t='"dontAsk"' /><Op t="," />
+          </L>
+          <L n={34}>
+            <I level={2} /><Va t="settings" /><Op t="={" />
+            <Str t='"permissions"' /><Op t=": {" />
+            <Str t='"allow"' /><Op t=": [" /><Str t='"Read(.claude/skills/**)"' /><Op t="]}}," />
+          </L>
+          <L n={35}>
             <I level={2} /><Va t="env" /><Op t="=" />
             <Fn t="collect_gateway_env" /><Op t="()," />
           </L>
-          <L n={32}>
+          <L n={36}>
             <I /><Op t=")" />
           </L>
-          <L n={33} />
+          <L n={37} />
 
           {/* ═══ Step 5: Launch Agent ═══ */}
-          <L n={34}>
+          <L n={38}>
             <I /><Cmt t="# 5. Launch Claude Agent" />
           </L>
-          <L n={35}>
+          <L n={39}>
             <I /><Va t="result" /><Op t=" = " />
             <Fn t="query" /><Op t="(" /><Va t="prompt" /><Op t="=" />
             <Va t="message" /><Op t=", " /><Va t="options" /><Op t="=" />
             <Va t="options" /><Op t=")" />
           </L>
-          <L n={36}>
+          <L n={40}>
             <I /><Va t="assistant_text" /><Op t=" = " />
             <Kw t="await " /><Fn t="collect_assistant_text" /><Op t="(" />
             <Va t="result" /><Op t=")" />
           </L>
-          <L n={37} />
+          <L n={41} />
 
           {/* ═══ Step 6: Save reply ═══ */}
-          <L n={38}>
+          <L n={42}>
             <I /><Cmt t="# 6. EdgeOne Store: save assistant reply for /history" />
           </L>
-          <L n={39}>
+          <L n={43}>
             <I /><Kw t="await " /><Va t="store" /><Op t="." />
             <Fn t="append_message" /><Op t="(" />
             <Va t="cid" /><Op t=", " />
             <Str t='"assistant"' /><Op t=", " /><Va t="assistant_text" /><Op t=")" />
           </L>
-          <L n={40}>
+          <L n={44}>
             <I /><Kw t="return " /><Op t="{" />
             <Str t='"answer"' /><Op t=": " /><Va t="assistant_text" /><Op t="}" />
           </L>
