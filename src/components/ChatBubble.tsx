@@ -8,6 +8,36 @@ interface Props {
   message: Message;
 }
 
+/** Where the inline `WSA` link in the wsa_missing label points. */
+const WSA_DOC_URL = 'https://pages.edgeone.ai/document/sandbox-network-search-tool';
+
+/**
+ * Render the wsa_missing chip label with a clickable `WSA` token.
+ *
+ * The i18n string carries a `{0}` placeholder marking where the link
+ * text goes, so en ("…needs a {0} API key") and zh ("…需配置 {0} API Key")
+ * both produce a single anchor in the right spot. Falls back to the raw
+ * string if the placeholder is missing (e.g. translator forgot it).
+ */
+function renderWsaMissingLabel(template: string) {
+  const parts = template.split('{0}');
+  if (parts.length !== 2) return template;
+  return (
+    <>
+      {parts[0]}
+      <a
+        className={styles.searchLabelLink}
+        href={WSA_DOC_URL}
+        target="_blank"
+        rel="noreferrer noopener"
+      >
+        WSA
+      </a>
+      {parts[1]}
+    </>
+  );
+}
+
 const TABLE_ROW_BOUNDARY = /\|\s+\|/g;
 const TABLE_SEPARATOR_ROW = /^\|\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$/;
 
@@ -84,7 +114,7 @@ export default function ChatBubble({ message }: Props) {
             <span className={styles.searchGlyph} aria-hidden="true" />
             <span className={styles.searchLabel}>{
               activity.status === 'error' && activity.errorCode === 'wsa_missing'
-                ? t('webSearch.error.wsaMissing')
+                ? renderWsaMissingLabel(t('webSearch.error.wsaMissing'))
                 : activity.label
             }</span>
             {activity.status === 'error' ? (
