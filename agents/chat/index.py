@@ -135,6 +135,17 @@ def build_agent_options(
         "Read(.claude/skills/**)",
         f"Read({cwd}/.claude/skills/**)",
     ]
+    # Merge incoming MCP tool names with the built-in Read scoping rules.
+    # The Python SDK's `settings` field only accepts a JSON-file path
+    # (str | None), unlike the TS SDK which also accepts an inline Settings
+    # dict. Trying to pass a dict raises CLIConnectionError("Failed to start
+    # Claude Code: expected str, bytes or os.PathLike object, not dict") at
+    # subprocess launch. So we route the same `permissions.allow` intent
+    # through `allowed_tools` instead — the CLI treats both as auto-allow
+    # rules with identical syntax.
+    merged_allowed_tools = list(
+        dict.fromkeys((allowed_tools or []) + skill_read_allow_rules)
+    )
     opts = ClaudeAgentOptions(
         model=resolve_model_name(),
         system_prompt=SYSTEM_PROMPT,
@@ -143,17 +154,10 @@ def build_agent_options(
         # project skills, and Read may only access .claude/skills resources.
         # EdgeOne sandbox tools are exposed separately through MCP below.
         tools=["Skill", "Read"],
-        allowed_tools=list(dict.fromkeys(allowed_tools or [])),
+        allowed_tools=merged_allowed_tools,
         setting_sources=["project"],
         skills="all",
         permission_mode="dontAsk",
-        settings={
-            "permissions": {
-                "allow": skill_read_allow_rules,
-                "defaultMode": "dontAsk",
-                "disableBypassPermissionsMode": "disable",
-            },
-        },
         max_turns=10,
         env=collect_gateway_env(),
         include_partial_messages=True,
